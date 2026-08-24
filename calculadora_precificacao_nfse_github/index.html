@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#245b3d" />
+  <title>Calculadora de Preço e NFS-e</title>
+
+
+  <style>
+    :root {
+      --bg: #f5f3ee;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --border: #d5d1c7;
+      --primary: #245b3d;
+      --primary2: #2f6f4e;
+      --soft: #eef7f1;
+      --warning: #fff8e7;
+      --danger: #b42318;
+      --info: #eef4ff;
+      --shadow: 0 4px 16px rgba(0,0,0,.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .container {
+      width: min(1040px, 95%);
+      margin: 0 auto;
+      padding: 22px 0 50px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(32px, 5vw, 46px);
+      line-height: 1.12;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 27px;
+    }
+
+    h3 {
+      margin: 22px 0 12px;
+      font-size: 21px;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .step {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .notice, .info, .danger {
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 18px;
+      font-size: 17px;
+    }
+
+    .notice {
+      background: var(--warning);
+      border: 2px solid #e2cf96;
+    }
+
+    .info {
+      background: var(--info);
+      border: 2px solid #b7c8ef;
+    }
+
+    .danger {
+      background: #fff1f0;
+      border: 2px solid #f2b8b5;
+      color: var(--danger);
+      display: none;
+      font-weight: 700;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 800;
+      font-size: 19px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 58px;
+      padding: 11px 13px;
+      border: 2px solid #9ca3af;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-size: 21px;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus, button:focus-visible {
+      outline: 4px solid rgba(47,111,78,.18);
+      border-color: var(--primary2);
+    }
+
+    .help {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table.calc-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    .calc-table th, .calc-table td {
+      border-bottom: 1px solid #ddd;
+      padding: 9px 7px;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    .calc-table th {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .calc-table input {
+      min-height: 46px;
+      font-size: 18px;
+      padding: 7px 9px;
+    }
+
+    .money { font-weight: 800; white-space: nowrap; }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      margin: 22px 0;
+    }
+
+    button {
+      min-height: 64px;
+      border: 0;
+      border-radius: 14px;
+      font-size: 21px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--primary2);
+      color: #fff;
+    }
+
+    .primary:hover { background: var(--primary); }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .outline {
+      background: #fff;
+      color: var(--primary);
+      border: 2px solid var(--primary2);
+    }
+
+    .results {
+      background: var(--soft);
+      border-color: #9fc8ae;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 0;
+      border-bottom: 1px solid #c9dfd1;
+      font-size: 20px;
+    }
+
+    .result-row strong {
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .final-price {
+      margin-top: 18px;
+      padding: 22px;
+      border-radius: 16px;
+      background: var(--primary2);
+      color: #fff;
+      text-align: center;
+    }
+
+    .final-price .label {
+      display: block;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .final-price .value {
+      display: block;
+      margin-top: 4px;
+      font-weight: 900;
+      font-size: clamp(42px, 8vw, 60px);
+      line-height: 1.1;
+    }
+
+    .pdf-actions {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    /* Documento fiscal de conferência */
+    #nfseDocument {
+      background: #fff;
+      color: #111;
+      width: 100%;
+      max-width: 794px;
+      margin: 0 auto;
+      padding: 22px;
+      border: 1px solid #aaa;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .nfse-warning {
+      text-align: center;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 8px;
+      border: 2px solid #111;
+      margin-bottom: 10px;
+      letter-spacing: .2px;
+    }
+
+    .nfse-header {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      border: 1px solid #111;
+      margin-bottom: 8px;
+    }
+
+    .nfse-header > div { padding: 10px; }
+
+    .nfse-header .right {
+      border-left: 1px solid #111;
+      text-align: center;
+    }
+
+    .nfse-title {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .nfse-subtitle {
+      font-size: 11px;
+    }
+
+    .nfse-box {
+      border: 1px solid #111;
+      margin-bottom: 8px;
+    }
+
+    .nfse-box-title {
+      background: #ededed;
+      border-bottom: 1px solid #111;
+      padding: 5px 7px;
+      font-weight: 900;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .nfse-box-body {
+      padding: 7px;
+    }
+
+    .nfse-grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 18px;
+    }
+
+    .nfse-grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px 12px;
+    }
+
+    .nfse-label {
+      color: #444;
+      font-size: 9px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    .nfse-value {
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .nfse-service {
+      min-height: 70px;
+      white-space: pre-wrap;
+    }
+
+    .nfse-values {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .nfse-values th, .nfse-values td {
+      border: 1px solid #111;
+      padding: 6px;
+      text-align: right;
+    }
+
+    .nfse-values th {
+      background: #ededed;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .nfse-values td:first-child, .nfse-values th:first-child {
+      text-align: left;
+    }
+
+    .nfse-total {
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .nfse-footer {
+      margin-top: 10px;
+      font-size: 9px;
+      color: #444;
+      text-align: center;
+    }
+
+    .hidden-print-helper { display: none; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 26px;
+    }
+
+    @media (max-width: 760px) {
+      body { font-size: 18px; }
+      .container { width: 96%; padding-top: 12px; }
+      .card { padding: 17px; border-radius: 15px; }
+      .grid2, .grid3, .actions, .steps, .pdf-actions {
+        grid-template-columns: 1fr;
+      }
+      input, select, textarea { font-size: 20px; }
+      button { font-size: 20px; }
+      .result-row { font-size: 18px; }
+      #nfseDocument {
+        padding: 12px;
+        font-size: 10px;
+      }
+      .nfse-header { grid-template-columns: 1fr; }
+      .nfse-header .right {
+        border-left: 0;
+        border-top: 1px solid #111;
+      }
+      .nfse-grid2, .nfse-grid3 { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      body * { visibility: hidden; }
+      #nfseDocument, #nfseDocument * { visibility: visible; }
+      #nfseDocument {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<main class="container">
+
+  <header>
+    <h1>Calculadora de Preço e NFS-e</h1>
+    <p class="subtitle">
+      Calcule o preço do produto ou serviço e gere um PDF de conferência com dados fiscais, sem mostrar lucro, margem ou custos internos ao cliente.
+    </p>
+  </header>
+
+  <div class="steps">
+    <div class="step">1. Calcule os custos</div>
+    <div class="step">2. Preencha os dados fiscais</div>
+    <div class="step">3. Gere o PDF</div>
+  </div>
+
+  <section class="card">
+    <h2>1. Produto ou serviço</h2>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="produto">Nome do produto ou serviço</label>
+        <input id="produto" type="text" placeholder="Exemplo: Suporte de madeira para planta" />
+      </div>
+
+      <div class="field">
+        <label for="quantidade">Quantidade produzida</label>
+        <input id="quantidade" type="number" min="1" step="1" value="1" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="descricaoInterna">Descrição do trabalho</label>
+      <textarea id="descricaoInterna" placeholder="Exemplo: corte da madeira, lixamento, montagem, aplicação de verniz e acabamento."></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Materiais</h2>
+
+    <div class="notice">
+      Preencha somente os materiais utilizados. Os custos desta área são internos e não aparecerão no PDF destinado ao cliente.
+    </div>
+
+    <div class="table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>Unidade</th>
+            <th>Quantidade usada</th>
+            <th>Valor unitário</th>
+            <th>Custo</th>
+          </tr>
+        </thead>
+        <tbody id="materiaisBody"></tbody>
+      </table>
+    </div>
+
+    <h3>Outro material</h3>
+    <div class="grid3">
+      <div class="field">
+        <label for="extraNome">Nome</label>
+        <input id="extraNome" type="text" placeholder="Outro material" />
+      </div>
+      <div class="field">
+        <label for="extraQtd">Quantidade</label>
+        <input id="extraQtd" type="number" min="0" step="0.01" value="0" />
+      </div>
+      <div class="field">
+        <label for="extraValor">Valor unitário</label>
+        <input id="extraValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="desperdicio">Perda ou desperdício (%)</label>
+      <input id="desperdicio" type="number" min="0" max="100" step="0.1" value="0" />
+      <span class="help">Exemplo: sobras de madeira e material que não podem ser reaproveitados.</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Energia elétrica</h2>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="tarifaKwh">Valor do kWh na conta de luz</label>
+        <input id="tarifaKwh" type="number" min="0" step="0.0001" placeholder="Exemplo: 1,10" />
+        <span class="help">Use o valor aproximado cobrado por kWh na conta de energia.</span>
+      </div>
+
+      <div class="field">
+        <label for="energiaExtra">Outro custo de energia</label>
+        <input id="energiaExtra" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Potência em Watts</th>
+            <th>Horas</th>
+            <th>Minutos</th>
+            <th>Custo</th>
+          </tr>
+        </thead>
+        <tbody id="energiaBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Mão de obra e preço</h2>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="valorHora">Valor da hora de trabalho</label>
+        <input id="valorHora" type="number" min="0" step="0.01" placeholder="Exemplo: 30,00" />
+      </div>
+
+      <div class="field">
+        <label for="horas">Horas trabalhadas</label>
+        <input id="horas" type="number" min="0" step="1" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="minutos">Minutos extras</label>
+        <input id="minutos" type="number" min="0" max="59" step="1" value="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="outrosCustos">Outros custos</label>
+        <input id="outrosCustos" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="lucroPct">Percentual para formar o preço (%)</label>
+        <input id="lucroPct" type="number" min="0" max="500" step="1" value="50" />
+        <span class="help">Este campo é apenas interno. Não aparece no PDF.</span>
+      </div>
+
+      <div class="field">
+        <label for="taxasPct">Taxas sobre a venda (%)</label>
+        <input id="taxasPct" type="number" min="0" max="99" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="arredondar">Arredondamento</label>
+        <select id="arredondar">
+          <option value="none">Não arredondar</option>
+          <option value="1">Próximo R$ 1</option>
+          <option value="5">Próximo R$ 5</option>
+          <option value="10">Próximo R$ 10</option>
+          <option value="9.90">Final em ,90</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" type="button" onclick="calcular(true)">CALCULAR PREÇO</button>
+    <button class="secondary" type="button" onclick="limparCalculo()">LIMPAR</button>
+  </div>
+
+  <div id="erroCalculo" class="danger"></div>
+
+  <section class="card results" id="resultado">
+    <h2>Resultado interno</h2>
+    <div class="result-row"><span>Materiais por peça</span><strong id="rMateriais">R$ 0,00</strong></div>
+    <div class="result-row"><span>Energia por peça</span><strong id="rEnergia">R$ 0,00</strong></div>
+    <div class="result-row"><span>Mão de obra por peça</span><strong id="rMaoObra">R$ 0,00</strong></div>
+    <div class="result-row"><span>Outros custos por peça</span><strong id="rOutros">R$ 0,00</strong></div>
+    <div class="result-row"><span>Custo total por peça</span><strong id="rCusto">R$ 0,00</strong></div>
+
+    <div class="final-price">
+      <span class="label">PREÇO SUGERIDO POR PEÇA</span>
+      <span class="value" id="rPreco">R$ 0,00</span>
+    </div>
+
+    <div class="result-row"><span>Valor total do pedido</span><strong id="rPedido">R$ 0,00</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>5. Dados fiscais para o PDF</h2>
+
+    <div class="info">
+      O PDF abaixo segue uma estrutura de conferência baseada na NFS-e nacional. Para ter validade fiscal, a emissão oficial deve ser autorizada pelo Emissor Nacional ou por integração API credenciada. O PDF local não substitui a NFS-e oficial.
+    </div>
+
+    <h3>Prestador</h3>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="prestadorNome">Nome / Razão Social</label>
+        <input id="prestadorNome" type="text" placeholder="Nome do prestador ou empresa" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorDoc">CPF ou CNPJ</label>
+        <input id="prestadorDoc" type="text" inputmode="numeric" placeholder="CPF ou CNPJ" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorIM">Inscrição Municipal</label>
+        <input id="prestadorIM" type="text" placeholder="Se houver" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorRegime">Regime tributário</label>
+        <select id="prestadorRegime">
+          <option value="">Selecione</option>
+          <option>MEI</option>
+          <option>Simples Nacional</option>
+          <option>Lucro Presumido</option>
+          <option>Lucro Real</option>
+          <option>Autônomo / Pessoa Física</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="prestadorMunicipio">Município</label>
+        <input id="prestadorMunicipio" type="text" placeholder="Exemplo: São Paulo" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorUF">UF</label>
+        <input id="prestadorUF" type="text" maxlength="2" placeholder="SP" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="prestadorEndereco">Endereço</label>
+      <input id="prestadorEndereco" type="text" placeholder="Rua, número, bairro e CEP" />
+    </div>
+
+    <h3>Tomador / cliente</h3>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="clienteNome">Nome / Razão Social</label>
+        <input id="clienteNome" type="text" placeholder="Nome do cliente" />
+      </div>
+
+      <div class="field">
+        <label for="clienteDoc">CPF ou CNPJ</label>
+        <input id="clienteDoc" type="text" inputmode="numeric" placeholder="CPF ou CNPJ" />
+      </div>
+
+      <div class="field">
+        <label for="clienteMunicipio">Município</label>
+        <input id="clienteMunicipio" type="text" placeholder="Município" />
+      </div>
+
+      <div class="field">
+        <label for="clienteUF">UF</label>
+        <input id="clienteUF" type="text" maxlength="2" placeholder="SP" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="clienteEndereco">Endereço</label>
+      <input id="clienteEndereco" type="text" placeholder="Rua, número, bairro e CEP" />
+    </div>
+
+    <h3>Dados do serviço</h3>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="competencia">Data de competência</label>
+        <input id="competencia" type="date" />
+      </div>
+
+      <div class="field">
+        <label for="municipioPrestacao">Município da prestação</label>
+        <input id="municipioPrestacao" type="text" placeholder="Município" />
+      </div>
+
+      <div class="field">
+        <label for="ufPrestacao">UF</label>
+        <input id="ufPrestacao" type="text" maxlength="2" placeholder="SP" />
+      </div>
+
+      <div class="field">
+        <label for="codigoTributacao">Código de Tributação Nacional</label>
+        <input id="codigoTributacao" type="text" placeholder="Conforme serviço" />
+      </div>
+
+      <div class="field">
+        <label for="nbs">NBS</label>
+        <input id="nbs" type="text" placeholder="Se aplicável" />
+      </div>
+
+      <div class="field">
+        <label for="numeroControle">Número de controle</label>
+        <input id="numeroControle" type="text" placeholder="Exemplo: 0001" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="descricaoFiscal">Descrição que aparecerá no PDF</label>
+      <textarea id="descricaoFiscal" placeholder="Exemplo: Fabricação e montagem de suporte artesanal de madeira para planta, conforme especificação do cliente."></textarea>
+      <span class="help">Não informe custo, lucro ou margem neste campo.</span>
+    </div>
+
+    <h3>Tributos e retenções</h3>
+
+    <div class="notice">
+      Os campos tributários são opcionais nesta calculadora. Preencha somente com valores conferidos no sistema fiscal ou com orientação contábil. A calculadora não determina automaticamente o enquadramento tributário.
+    </div>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="issValor">ISSQN, valor</label>
+        <input id="issValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="ibsValor">IBS, valor</label>
+        <input id="ibsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="cbsValor">CBS, valor</label>
+        <input id="cbsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="pisValor">PIS, valor</label>
+        <input id="pisValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="cofinsValor">COFINS, valor</label>
+        <input id="cofinsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="inssValor">INSS retido, valor</label>
+        <input id="inssValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <h3>Dados da NFS-e oficial, se já emitida</h3>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="nfseNumero">Número da NFS-e</label>
+        <input id="nfseNumero" type="text" placeholder="Opcional" />
+      </div>
+
+      <div class="field">
+        <label for="codigoVerificacao">Código de verificação</label>
+        <input id="codigoVerificacao" type="text" placeholder="Opcional" />
+      </div>
+
+      <div class="field">
+        <label for="chaveAcesso">Chave de acesso</label>
+        <input id="chaveAcesso" type="text" placeholder="Opcional" />
+      </div>
+    </div>
+
+    <div class="pdf-actions">
+      <button class="primary" type="button" onclick="gerarPDF()">GERAR PDF</button>
+      <button class="outline" type="button" onclick="atualizarDocumento(true)">VER PRÉVIA</button>
+    </div>
+
+    <div id="erroPDF" class="danger"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prévia do documento</h2>
+
+    <div id="nfseDocument">
+      <div class="nfse-warning">
+        ESPELHO DE CONFERÊNCIA, SEM VALIDADE FISCAL
+      </div>
+
+      <div class="nfse-header">
+        <div>
+          <div class="nfse-title">NFS-e, Nota Fiscal de Serviço Eletrônica</div>
+          <div class="nfse-subtitle">Documento de conferência baseado na estrutura nacional de NFS-e</div>
+        </div>
+
+        <div class="right">
+          <span class="nfse-label">Número da NFS-e</span>
+          <div class="nfse-value" id="dNfseNumero">Não informado</div>
+          <br />
+          <span class="nfse-label">Competência</span>
+          <div class="nfse-value" id="dCompetencia">Não informada</div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Prestador do serviço</div>
+        <div class="nfse-box-body nfse-grid2">
+          <div><span class="nfse-label">Nome / Razão Social</span><span class="nfse-value" id="dPrestadorNome">Não informado</span></div>
+          <div><span class="nfse-label">CPF / CNPJ</span><span class="nfse-value" id="dPrestadorDoc">Não informado</span></div>
+          <div><span class="nfse-label">Inscrição Municipal</span><span class="nfse-value" id="dPrestadorIM">Não informada</span></div>
+          <div><span class="nfse-label">Regime Tributário</span><span class="nfse-value" id="dPrestadorRegime">Não informado</span></div>
+          <div><span class="nfse-label">Município / UF</span><span class="nfse-value" id="dPrestadorCidade">Não informado</span></div>
+          <div><span class="nfse-label">Endereço</span><span class="nfse-value" id="dPrestadorEndereco">Não informado</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Tomador do serviço</div>
+        <div class="nfse-box-body nfse-grid2">
+          <div><span class="nfse-label">Nome / Razão Social</span><span class="nfse-value" id="dClienteNome">Não informado</span></div>
+          <div><span class="nfse-label">CPF / CNPJ</span><span class="nfse-value" id="dClienteDoc">Não informado</span></div>
+          <div><span class="nfse-label">Município / UF</span><span class="nfse-value" id="dClienteCidade">Não informado</span></div>
+          <div><span class="nfse-label">Endereço</span><span class="nfse-value" id="dClienteEndereco">Não informado</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Serviço prestado</div>
+        <div class="nfse-box-body">
+          <div class="nfse-grid3">
+            <div><span class="nfse-label">Município da prestação</span><span class="nfse-value" id="dMunicipioPrestacao">Não informado</span></div>
+            <div><span class="nfse-label">Código de Tributação Nacional</span><span class="nfse-value" id="dCodigoTributacao">Não informado</span></div>
+            <div><span class="nfse-label">NBS</span><span class="nfse-value" id="dNbs">Não informado</span></div>
+          </div>
+          <br />
+          <span class="nfse-label">Descrição do serviço</span>
+          <div class="nfse-value nfse-service" id="dDescricaoFiscal">Não informada</div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Valores</div>
+        <div class="nfse-box-body">
+          <table class="nfse-values">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Quantidade</th>
+                <th>Valor unitário</th>
+                <th>Valor total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="dProduto">Serviço</td>
+                <td id="dQuantidade">1</td>
+                <td id="dValorUnitario">R$ 0,00</td>
+                <td id="dValorTotal">R$ 0,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Tributos informados</div>
+        <div class="nfse-box-body">
+          <table class="nfse-values">
+            <thead>
+              <tr>
+                <th>ISSQN</th>
+                <th>IBS</th>
+                <th>CBS</th>
+                <th>PIS</th>
+                <th>COFINS</th>
+                <th>INSS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="dIss">R$ 0,00</td>
+                <td id="dIbs">R$ 0,00</td>
+                <td id="dCbs">R$ 0,00</td>
+                <td id="dPis">R$ 0,00</td>
+                <td id="dCofins">R$ 0,00</td>
+                <td id="dInss">R$ 0,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Identificação e conferência</div>
+        <div class="nfse-box-body nfse-grid3">
+          <div><span class="nfse-label">Número de controle</span><span class="nfse-value" id="dNumeroControle">Não informado</span></div>
+          <div><span class="nfse-label">Código de verificação</span><span class="nfse-value" id="dCodigoVerificacao">Não informado</span></div>
+          <div><span class="nfse-label">Chave de acesso</span><span class="nfse-value" id="dChaveAcesso">Não informada</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-body">
+          <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;">
+            <strong>VALOR TOTAL DO SERVIÇO</strong>
+            <strong class="nfse-total" id="dTotalFinal">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="nfse-footer">
+        Este arquivo é uma prévia local para conferência e controle. A validade fiscal depende da autorização e emissão no ambiente fiscal competente.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Calculadora simples de precificação e geração de PDF de conferência.
+  </footer>
+</main>
+
+<script>
+  const BRL = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+
+  const materiais = [
+    { id: 'madeira', nome: 'Madeira', unidade: 'm / peça' },
+    { id: 'parafuso', nome: 'Parafuso', unidade: 'unidade' },
+    { id: 'verniz', nome: 'Verniz', unidade: 'ml / litro' },
+    { id: 'lixa', nome: 'Lixa', unidade: 'folha / unidade' },
+    { id: 'cachepo', nome: 'Cachepô', unidade: 'unidade' },
+    { id: 'arame', nome: 'Arame', unidade: 'm / rolo' },
+    { id: 'rodSilicone', nome: 'Rodinha de silicone ou cristal', unidade: 'unidade' },
+    { id: 'rodPlastico', nome: 'Rodinha de plástico', unidade: 'unidade' }
+  ];
+
+  const equipamentos = [
+    { id: 'serra', nome: 'Serra elétrica' },
+    { id: 'furadeira', nome: 'Furadeira' },
+    { id: 'lixadeira', nome: 'Lixadeira' },
+    { id: 'outroEq', nome: 'Outro equipamento' }
+  ];
+
+  function moeda(v) {
+    return BRL.format(Number.isFinite(v) ? v : 0);
+  }
+
+  function numero(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const v = parseFloat(el.value);
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  function texto(id, fallback = 'Não informado') {
+    const el = document.getElementById(id);
+    const v = el ? el.value.trim() : '';
+    return v || fallback;
+  }
+
+  function formatarData(data) {
+    if (!data) return 'Não informada';
+    const d = new Date(data + 'T12:00:00');
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function arredondarPreco(valor, tipo) {
+    if (!Number.isFinite(valor) || valor <= 0) return 0;
+    if (tipo === 'none') return valor;
+
+    if (tipo === '9.90') {
+      const base = Math.floor(valor / 10) * 10 + 9.90;
+      return base >= valor ? base : base + 10;
+    }
+
+    const passo = parseFloat(tipo);
+    if (!Number.isFinite(passo) || passo <= 0) return valor;
+    return Math.ceil(valor / passo) * passo;
+  }
+
+  function montarTabelas() {
+    const mb = document.getElementById('materiaisBody');
+
+    mb.innerHTML = materiais.map(m => `
+      <tr>
+        <td><strong>${m.nome}</strong></td>
+        <td>${m.unidade}</td>
+        <td><input id="${m.id}Qtd" type="number" min="0" step="0.01" value="0" /></td>
+        <td><input id="${m.id}Valor" type="number" min="0" step="0.01" value="0" /></td>
+        <td class="money" id="${m.id}Total">R$ 0,00</td>
+      </tr>
+    `).join('');
+
+    const eb = document.getElementById('energiaBody');
+
+    eb.innerHTML = equipamentos.map(e => `
+      <tr>
+        <td><strong>${e.nome}</strong></td>
+        <td><input id="${e.id}W" type="number" min="0" step="1" value="0" /></td>
+        <td><input id="${e.id}H" type="number" min="0" step="0.1" value="0" /></td>
+        <td><input id="${e.id}M" type="number" min="0" max="59" step="1" value="0" /></td>
+        <td class="money" id="${e.id}Custo">R$ 0,00</td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      el.addEventListener('input', () => {
+        calcular(false);
+        atualizarDocumento(false);
+      });
+
+      el.addEventListener('change', () => {
+        calcular(false);
+        atualizarDocumento(false);
+      });
+    });
+  }
+
+  function calcular(rolar = false) {
+    const qtdPecas = Math.max(1, Math.floor(numero('quantidade') || 1));
+    const perda = Math.max(0, numero('desperdicio')) / 100;
+
+    let materiaisBase = 0;
+
+    materiais.forEach(m => {
+      const total = numero(m.id + 'Qtd') * numero(m.id + 'Valor');
+      materiaisBase += total;
+      document.getElementById(m.id + 'Total').textContent = moeda(total);
+    });
+
+    const materialExtra = numero('extraQtd') * numero('extraValor');
+    materiaisBase += materialExtra;
+
+    const materiaisComPerda = materiaisBase * (1 + perda);
+
+    const tarifa = numero('tarifaKwh');
+    let energia = 0;
+
+    equipamentos.forEach(e => {
+      const watts = numero(e.id + 'W');
+      const horas = numero(e.id + 'H') + (numero(e.id + 'M') / 60);
+      const custo = (watts / 1000) * horas * tarifa;
+      energia += custo;
+      document.getElementById(e.id + 'Custo').textContent = moeda(custo);
+    });
+
+    energia += numero('energiaExtra');
+
+    const tempoMaoObra = numero('horas') + (numero('minutos') / 60);
+    const maoObra = numero('valorHora') * tempoMaoObra;
+    const outros = numero('outrosCustos');
+
+    const custoTotalPedido = materiaisComPerda + energia + maoObra + outros;
+    const custoUnitario = custoTotalPedido / qtdPecas;
+
+    const percentualFormacao = Math.max(0, numero('lucroPct')) / 100;
+    const taxas = Math.max(0, numero('taxasPct')) / 100;
+
+    let erro = '';
+    let precoUnitario = 0;
+
+    if (custoTotalPedido <= 0) {
+      erro = 'Informe pelo menos um custo para calcular o preço.';
+    } else if (taxas >= 1) {
+      erro = 'A soma das taxas deve ser menor que 100%.';
+    } else {
+      const base = custoUnitario * (1 + percentualFormacao);
+      precoUnitario = base / (1 - taxas);
+      precoUnitario = arredondarPreco(precoUnitario, document.getElementById('arredondar').value);
+    }
+
+    const totalPedido = precoUnitario * qtdPecas;
+
+    document.getElementById('erroCalculo').style.display = erro ? 'block' : 'none';
+    document.getElementById('erroCalculo').textContent = erro;
+
+    document.getElementById('rMateriais').textContent = moeda(materiaisComPerda / qtdPecas);
+    document.getElementById('rEnergia').textContent = moeda(energia / qtdPecas);
+    document.getElementById('rMaoObra').textContent = moeda(maoObra / qtdPecas);
+    document.getElementById('rOutros').textContent = moeda(outros / qtdPecas);
+    document.getElementById('rCusto').textContent = moeda(custoUnitario);
+    document.getElementById('rPreco').textContent = moeda(precoUnitario);
+    document.getElementById('rPedido').textContent = moeda(totalPedido);
+
+    window.calculoAtual = {
+      qtdPecas,
+      custoUnitario,
+      precoUnitario,
+      totalPedido
+    };
+
+    atualizarDocumento(false);
+
+    if (rolar && !erro) {
+      document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    return !erro;
+  }
+
+  function atualizarDocumento(rolar = false) {
+    const c = window.calculoAtual || {
+      qtdPecas: 1,
+      precoUnitario: 0,
+      totalPedido: 0
+    };
+
+    const produto = texto('produto', 'Serviço');
+    const descricaoFiscal = texto('descricaoFiscal', texto('descricaoInterna', 'Não informada'));
+
+    document.getElementById('dNfseNumero').textContent = texto('nfseNumero');
+    document.getElementById('dCompetencia').textContent = formatarData(document.getElementById('competencia').value);
+
+    document.getElementById('dPrestadorNome').textContent = texto('prestadorNome');
+    document.getElementById('dPrestadorDoc').textContent = texto('prestadorDoc');
+    document.getElementById('dPrestadorIM').textContent = texto('prestadorIM', 'Não informada');
+    document.getElementById('dPrestadorRegime').textContent = texto('prestadorRegime');
+
+    const prestCidade = [texto('prestadorMunicipio', ''), texto('prestadorUF', '')].filter(Boolean).join(' / ');
+    document.getElementById('dPrestadorCidade').textContent = prestCidade || 'Não informado';
+    document.getElementById('dPrestadorEndereco').textContent = texto('prestadorEndereco');
+
+    document.getElementById('dClienteNome').textContent = texto('clienteNome');
+    document.getElementById('dClienteDoc').textContent = texto('clienteDoc');
+
+    const cliCidade = [texto('clienteMunicipio', ''), texto('clienteUF', '')].filter(Boolean).join(' / ');
+    document.getElementById('dClienteCidade').textContent = cliCidade || 'Não informado';
+    document.getElementById('dClienteEndereco').textContent = texto('clienteEndereco');
+
+    const localPrestacao = [texto('municipioPrestacao', ''), texto('ufPrestacao', '')].filter(Boolean).join(' / ');
+    document.getElementById('dMunicipioPrestacao').textContent = localPrestacao || 'Não informado';
+
+    document.getElementById('dCodigoTributacao').textContent = texto('codigoTributacao');
+    document.getElementById('dNbs').textContent = texto('nbs');
+    document.getElementById('dDescricaoFiscal').textContent = descricaoFiscal;
+
+    document.getElementById('dProduto').textContent = produto;
+    document.getElementById('dQuantidade').textContent = c.qtdPecas || 1;
+    document.getElementById('dValorUnitario').textContent = moeda(c.precoUnitario || 0);
+    document.getElementById('dValorTotal').textContent = moeda(c.totalPedido || 0);
+
+    document.getElementById('dIss').textContent = moeda(numero('issValor'));
+    document.getElementById('dIbs').textContent = moeda(numero('ibsValor'));
+    document.getElementById('dCbs').textContent = moeda(numero('cbsValor'));
+    document.getElementById('dPis').textContent = moeda(numero('pisValor'));
+    document.getElementById('dCofins').textContent = moeda(numero('cofinsValor'));
+    document.getElementById('dInss').textContent = moeda(numero('inssValor'));
+
+    document.getElementById('dNumeroControle').textContent = texto('numeroControle');
+    document.getElementById('dCodigoVerificacao').textContent = texto('codigoVerificacao');
+    document.getElementById('dChaveAcesso').textContent = texto('chaveAcesso');
+    document.getElementById('dTotalFinal').textContent = moeda(c.totalPedido || 0);
+
+    if (rolar) {
+      document.getElementById('nfseDocument').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function validarPDF() {
+    const faltantes = [];
+
+    if (!document.getElementById('prestadorNome').value.trim()) faltantes.push('Nome do prestador');
+    if (!document.getElementById('prestadorDoc').value.trim()) faltantes.push('CPF/CNPJ do prestador');
+    if (!document.getElementById('clienteNome').value.trim()) faltantes.push('Nome do cliente');
+    if (!document.getElementById('descricaoFiscal').value.trim() && !document.getElementById('descricaoInterna').value.trim()) {
+      faltantes.push('Descrição do serviço');
+    }
+    if (!document.getElementById('competencia').value) faltantes.push('Data de competência');
+
+    const c = window.calculoAtual || {};
+    if (!c.totalPedido || c.totalPedido <= 0) faltantes.push('Valor do serviço');
+
+    const box = document.getElementById('erroPDF');
+
+    if (faltantes.length) {
+      box.style.display = 'block';
+      box.textContent = 'Preencha antes de gerar o PDF: ' + faltantes.join(', ') + '.';
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+
+    box.style.display = 'none';
+    box.textContent = '';
+    return true;
+  }
+
+  function pdfEscape(texto) {
+    return String(texto ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)')
+      .replace(/[\r\n]+/g, ' ');
+  }
+
+  function encodeWinAnsi(texto) {
+    const mapa = {
+      '€': 128, '‚': 130, 'ƒ': 131, '„': 132, '…': 133, '†': 134, '‡': 135,
+      'ˆ': 136, '‰': 137, 'Š': 138, '‹': 139, 'Œ': 140, 'Ž': 142,
+      '‘': 145, '’': 146, '“': 147, '”': 148, '•': 149, '–': 150, '—': 151,
+      '˜': 152, '™': 153, 'š': 154, '›': 155, 'œ': 156, 'ž': 158, 'Ÿ': 159
+    };
+
+    const bytes = [];
+    for (const ch of texto) {
+      const code = ch.charCodeAt(0);
+      if (code <= 255) bytes.push(code);
+      else if (Object.prototype.hasOwnProperty.call(mapa, ch)) bytes.push(mapa[ch]);
+      else bytes.push(63);
+    }
+    return new Uint8Array(bytes);
+  }
+
+  function concatBytes(partes) {
+    const total = partes.reduce((s, p) => s + p.length, 0);
+    const out = new Uint8Array(total);
+    let offset = 0;
+    partes.forEach(p => {
+      out.set(p, offset);
+      offset += p.length;
+    });
+    return out;
+  }
+
+  function quebrarTexto(texto, maxChars = 86) {
+    const limpo = String(texto || '').replace(/\s+/g, ' ').trim();
+    if (!limpo) return [''];
+
+    const palavras = limpo.split(' ');
+    const linhas = [];
+    let atual = '';
+
+    palavras.forEach(palavra => {
+      const teste = atual ? atual + ' ' + palavra : palavra;
+      if (teste.length <= maxChars) {
+        atual = teste;
+      } else {
+        if (atual) linhas.push(atual);
+        if (palavra.length <= maxChars) {
+          atual = palavra;
+        } else {
+          let restante = palavra;
+          while (restante.length > maxChars) {
+            linhas.push(restante.slice(0, maxChars));
+            restante = restante.slice(maxChars);
+          }
+          atual = restante;
+        }
+      }
+    });
+
+    if (atual) linhas.push(atual);
+    return linhas.length ? linhas : [''];
+  }
+
+  function criarPdfNfse(dados) {
+    const W = 595.28;
+    const H = 841.89;
+    const margem = 42;
+    const paginas = [];
+    let comandos = [];
+    let y = H - 42;
+
+    const cmd = s => comandos.push(s);
+
+    function texto(x, yy, tamanho, conteudo, bold = false) {
+      cmd(`BT /${bold ? 'F2' : 'F1'} ${tamanho} Tf 1 0 0 1 ${x.toFixed(2)} ${yy.toFixed(2)} Tm (${pdfEscape(conteudo)}) Tj ET`);
+    }
+
+    function linha(x1, y1, x2, y2, largura = 0.7) {
+      cmd(`${largura} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
+    }
+
+    function retangulo(x, yy, w, h, largura = 0.7) {
+      cmd(`${largura} w ${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
+    }
+
+    function tituloPagina() {
+      texto(margem, H - 38, 10, 'ESPELHO DE CONFERÊNCIA - SEM VALIDADE FISCAL', true);
+      linha(margem, H - 45, W - margem, H - 45, 1);
+      texto(margem, H - 67, 16, 'NFS-e - Nota Fiscal de Serviço Eletrônica', true);
+      texto(margem, H - 84, 9, 'Documento local de conferência. A validade fiscal depende de autorização no ambiente fiscal competente.');
+      y = H - 105;
+    }
+
+    function novaPagina() {
+      if (comandos.length) paginas.push(comandos.join('\n'));
+      comandos = [];
+      tituloPagina();
+    }
+
+    function garantirEspaco(altura) {
+      if (y - altura < 48) novaPagina();
+    }
+
+    function secao(titulo, linhasConteudo) {
+      const linhasTratadas = [];
+      linhasConteudo.forEach(item => {
+        const prefixo = item.rotulo ? `${item.rotulo}: ` : '';
+        const max = item.maxChars || 80;
+        quebrarTexto(prefixo + (item.valor || 'Não informado'), max).forEach(l => linhasTratadas.push(l));
+      });
+
+      const altura = 23 + linhasTratadas.length * 12 + 7;
+      garantirEspaco(altura);
+
+      retangulo(margem, y - altura, W - margem * 2, altura);
+      texto(margem + 8, y - 17, 10, titulo.toUpperCase(), true);
+      linha(margem, y - 23, W - margem, y - 23, 0.5);
+
+      let yy = y - 35;
+      linhasTratadas.forEach(l => {
+        texto(margem + 8, yy, 9, l);
+        yy -= 12;
+      });
+      y -= altura + 7;
+    }
+
+    function tabelaValores() {
+      garantirEspaco(82);
+      const x = margem;
+      const largura = W - margem * 2;
+      const h = 68;
+      retangulo(x, y - h, largura, h);
+      texto(x + 8, y - 16, 10, 'VALORES DO SERVIÇO', true);
+      linha(x, y - 23, x + largura, y - 23, 0.5);
+
+      const col1 = x + 8;
+      const col2 = x + 280;
+      const col3 = x + 350;
+      const col4 = x + 430;
+
+      texto(col1, y - 38, 8, 'Descrição', true);
+      texto(col2, y - 38, 8, 'Qtd.', true);
+      texto(col3, y - 38, 8, 'Unitário', true);
+      texto(col4, y - 38, 8, 'Total', true);
+
+      linha(x + 6, y - 44, x + largura - 6, y - 44, 0.4);
+
+      const desc = quebrarTexto(dados.produto || 'Serviço', 42)[0];
+      texto(col1, y - 56, 9, desc);
+      texto(col2, y - 56, 9, String(dados.quantidade || 1));
+      texto(col3, y - 56, 9, moeda(dados.valorUnitario || 0));
+      texto(col4, y - 56, 9, moeda(dados.valorTotal || 0), true);
+
+      y -= h + 7;
+    }
+
+    function tributos() {
+      garantirEspaco(78);
+      const x = margem;
+      const largura = W - margem * 2;
+      const h = 64;
+      retangulo(x, y - h, largura, h);
+      texto(x + 8, y - 16, 10, 'TRIBUTOS INFORMADOS', true);
+      linha(x, y - 23, x + largura, y - 23, 0.5);
+
+      const itens = [
+        ['ISSQN', dados.iss], ['IBS', dados.ibs], ['CBS', dados.cbs],
+        ['PIS', dados.pis], ['COFINS', dados.cofins], ['INSS', dados.inss]
+      ];
+
+      const larguraCol = largura / 6;
+      itens.forEach((item, i) => {
+        const xx = x + i * larguraCol;
+        if (i > 0) linha(xx, y - 23, xx, y - h, 0.35);
+        texto(xx + 5, y - 39, 8, item[0], true);
+        texto(xx + 5, y - 53, 8, moeda(item[1] || 0));
+      });
+
+      y -= h + 7;
+    }
+
+    function totalFinal() {
+      garantirEspaco(48);
+      const h = 38;
+      retangulo(margem, y - h, W - margem * 2, h, 1);
+      texto(margem + 10, y - 24, 12, 'VALOR TOTAL DO SERVIÇO', true);
+      texto(W - margem - 130, y - 24, 14, moeda(dados.valorTotal || 0), true);
+      y -= h + 7;
+    }
+
+    tituloPagina();
+
+    secao('Identificação', [
+      { rotulo: 'Número da NFS-e', valor: dados.nfseNumero || 'Não informado' },
+      { rotulo: 'Competência', valor: dados.competencia || 'Não informada' },
+      { rotulo: 'Número de controle', valor: dados.numeroControle || 'Não informado' }
+    ]);
+
+    secao('Prestador do serviço', [
+      { rotulo: 'Nome / Razão Social', valor: dados.prestadorNome },
+      { rotulo: 'CPF / CNPJ', valor: dados.prestadorDoc },
+      { rotulo: 'Inscrição Municipal', valor: dados.prestadorIM || 'Não informada' },
+      { rotulo: 'Regime tributário', valor: dados.prestadorRegime || 'Não informado' },
+      { rotulo: 'Município / UF', valor: dados.prestadorCidade || 'Não informado' },
+      { rotulo: 'Endereço', valor: dados.prestadorEndereco || 'Não informado' }
+    ]);
+
+    secao('Tomador do serviço', [
+      { rotulo: 'Nome / Razão Social', valor: dados.clienteNome },
+      { rotulo: 'CPF / CNPJ', valor: dados.clienteDoc },
+      { rotulo: 'Município / UF', valor: dados.clienteCidade || 'Não informado' },
+      { rotulo: 'Endereço', valor: dados.clienteEndereco || 'Não informado' }
+    ]);
+
+    secao('Serviço prestado', [
+      { rotulo: 'Município da prestação', valor: dados.localPrestacao || 'Não informado' },
+      { rotulo: 'Código de Tributação Nacional', valor: dados.codigoTributacao || 'Não informado' },
+      { rotulo: 'NBS', valor: dados.nbs || 'Não informado' },
+      { rotulo: 'Descrição', valor: dados.descricaoFiscal || 'Não informada', maxChars: 82 }
+    ]);
+
+    tabelaValores();
+    tributos();
+
+    secao('Autenticação e conferência', [
+      { rotulo: 'Código de verificação', valor: dados.codigoVerificacao || 'Não informado' },
+      { rotulo: 'Chave de acesso', valor: dados.chaveAcesso || 'Não informada', maxChars: 76 }
+    ]);
+
+    totalFinal();
+
+    garantirEspaco(28);
+    texto(margem, y - 12, 8, 'Este arquivo é um espelho local de conferência e não substitui a NFS-e oficialmente autorizada.');
+
+    paginas.push(comandos.join('\n'));
+
+    const objetos = [];
+    const fontNormalObj = 3;
+    const fontBoldObj = 4;
+    let proxObj = 5;
+    const pageRefs = [];
+
+    paginas.forEach(stream => {
+      const pageObj = proxObj++;
+      const contentObj = proxObj++;
+      pageRefs.push({ pageObj, contentObj, stream });
+    });
+
+    objetos[1] = `<< /Type /Catalog /Pages 2 0 R >>`;
+    objetos[2] = `<< /Type /Pages /Kids [${pageRefs.map(p => `${p.pageObj} 0 R`).join(' ')}] /Count ${pageRefs.length} >>`;
+    objetos[fontNormalObj] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>`;
+    objetos[fontBoldObj] = `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>`;
+
+    pageRefs.forEach(p => {
+      objetos[p.pageObj] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W.toFixed(2)} ${H.toFixed(2)}] /Resources << /Font << /F1 ${fontNormalObj} 0 R /F2 ${fontBoldObj} 0 R >> >> /Contents ${p.contentObj} 0 R >>`;
+      const streamBytes = encodeWinAnsi(p.stream);
+      objetos[p.contentObj] = { streamBytes };
+    });
+
+    const partes = [];
+    partes.push(encodeWinAnsi('%PDF-1.4\n%âãÏÓ\n'));
+    const offsets = [0];
+    let pos = partes[0].length;
+
+    for (let i = 1; i < objetos.length; i++) {
+      offsets[i] = pos;
+      let bytesObj;
+
+      if (objetos[i] && objetos[i].streamBytes) {
+        const sb = objetos[i].streamBytes;
+        const cab = encodeWinAnsi(`${i} 0 obj\n<< /Length ${sb.length} >>\nstream\n`);
+        const fim = encodeWinAnsi(`\nendstream\nendobj\n`);
+        bytesObj = concatBytes([cab, sb, fim]);
+      } else {
+        bytesObj = encodeWinAnsi(`${i} 0 obj\n${objetos[i]}\nendobj\n`);
+      }
+
+      partes.push(bytesObj);
+      pos += bytesObj.length;
+    }
+
+    const xrefOffset = pos;
+    let xref = `xref\n0 ${objetos.length}\n0000000000 65535 f \n`;
+    for (let i = 1; i < objetos.length; i++) {
+      xref += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+    }
+
+    xref += `trailer\n<< /Size ${objetos.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    partes.push(encodeWinAnsi(xref));
+
+    return concatBytes(partes);
+  }
+
+  function coletarDadosPdf() {
+    const c = window.calculoAtual || {};
+    const prestadorCidade = [texto('prestadorMunicipio', ''), texto('prestadorUF', '')].filter(Boolean).join(' / ');
+    const clienteCidade = [texto('clienteMunicipio', ''), texto('clienteUF', '')].filter(Boolean).join(' / ');
+    const localPrestacao = [texto('municipioPrestacao', ''), texto('ufPrestacao', '')].filter(Boolean).join(' / ');
+
+    return {
+      nfseNumero: texto('nfseNumero', ''),
+      competencia: formatarData(document.getElementById('competencia').value),
+      numeroControle: texto('numeroControle', ''),
+      prestadorNome: texto('prestadorNome', ''),
+      prestadorDoc: texto('prestadorDoc', ''),
+      prestadorIM: texto('prestadorIM', ''),
+      prestadorRegime: texto('prestadorRegime', ''),
+      prestadorCidade,
+      prestadorEndereco: texto('prestadorEndereco', ''),
+      clienteNome: texto('clienteNome', ''),
+      clienteDoc: texto('clienteDoc', ''),
+      clienteCidade,
+      clienteEndereco: texto('clienteEndereco', ''),
+      localPrestacao,
+      codigoTributacao: texto('codigoTributacao', ''),
+      nbs: texto('nbs', ''),
+      descricaoFiscal: texto('descricaoFiscal', texto('descricaoInterna', '')),
+      produto: texto('produto', 'Serviço'),
+      quantidade: c.qtdPecas || 1,
+      valorUnitario: c.precoUnitario || 0,
+      valorTotal: c.totalPedido || 0,
+      iss: numero('issValor'),
+      ibs: numero('ibsValor'),
+      cbs: numero('cbsValor'),
+      pis: numero('pisValor'),
+      cofins: numero('cofinsValor'),
+      inss: numero('inssValor'),
+      codigoVerificacao: texto('codigoVerificacao', ''),
+      chaveAcesso: texto('chaveAcesso', '')
+    };
+  }
+
+  function gerarPDF() {
+    calcular(false);
+    atualizarDocumento(false);
+
+    if (!validarPDF()) return;
+
+    try {
+      const dados = coletarDadosPdf();
+      const pdfBytes = criarPdfNfse(dados);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const numero = document.getElementById('numeroControle').value.trim() || 'documento';
+
+      link.href = url;
+      link.download = `NFS-e_conferencia_${numero}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+      const box = document.getElementById('erroPDF');
+      box.style.display = 'block';
+      box.style.background = '#eef7f1';
+      box.style.borderColor = '#9fc8ae';
+      box.style.color = '#245b3d';
+      box.textContent = 'PDF gerado com sucesso. O arquivo foi baixado no seu dispositivo.';
+    } catch (erro) {
+      console.error(erro);
+      const box = document.getElementById('erroPDF');
+      box.style.display = 'block';
+      box.style.background = '#fff1f0';
+      box.style.borderColor = '#f2b8b5';
+      box.style.color = '#b42318';
+      box.textContent = 'Não foi possível gerar o PDF. Use o botão de prévia e tente novamente.';
+    }
+  }
+
+  function limparCalculo() {
+    document.querySelectorAll('input[type="number"]').forEach(el => {
+      if (['quantidade', 'lucroPct'].includes(el.id)) return;
+      el.value = '0';
+    });
+
+    document.getElementById('quantidade').value = '1';
+    document.getElementById('lucroPct').value = '50';
+    document.getElementById('arredondar').value = 'none';
+
+    materiais.forEach(m => {
+      document.getElementById(m.id + 'Qtd').value = '0';
+      document.getElementById(m.id + 'Valor').value = '0';
+    });
+
+    equipamentos.forEach(e => {
+      document.getElementById(e.id + 'W').value = '0';
+      document.getElementById(e.id + 'H').value = '0';
+      document.getElementById(e.id + 'M').value = '0';
+    });
+
+    calcular(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  montarTabelas();
+
+  const hoje = new Date().toISOString().slice(0,10);
+  document.getElementById('competencia').value = hoje;
+
+  calcular(false);
+  atualizarDocumento(false);
+</script>
+</body>
+</html>
