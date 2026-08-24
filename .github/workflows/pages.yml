@@ -32,8 +32,18 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Validar Node.js
-        run: node --version
+      - name: Validar Node.js 24
+        run: |
+          node --version
+          node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 24) process.exit(1)"
+
+      - name: Validar JavaScript
+        run: |
+          node --check server.js
+          node --check app.js
+          node --check app-core.js
+          node --check app-pdf.js
+          node --check app-main.js
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
@@ -41,7 +51,7 @@ jobs:
       - name: Preparar site
         run: |
           mkdir -p _site
-          cp index.html style.css app.js _site/
+          cp index.html style.css app.js app-core.js app-pdf.js app-main.js _site/
 
       - name: Enviar artefato
         uses: actions/upload-pages-artifact@v3
