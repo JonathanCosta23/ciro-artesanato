@@ -1,19 +1,526 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#2f6f4e">
-<title>Ciro Artesanato | Calculadora de Preço</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#245b3d" />
+  <title>Calculadora de Preço e NFS-e</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body><main class="wrap">
-<header><h1>Ciro Artesanato</h1><p class="sub">Calculadora simples de preço, energia, mão de obra e PDF de conferência para o cliente.</p></header>
-<section class="card"><h2>1. Produto</h2><div class="grid"><div class="field"><label>Produto ou serviço</label><input id="produto" placeholder="Exemplo: Suporte de madeira para planta"></div><div class="field"><label>Quantidade produzida</label><input id="qtdPecas" type="number" min="1" value="1"></div></div><div class="field"><label>Descrição do trabalho</label><textarea id="descInterna" placeholder="Corte, lixamento, montagem, verniz e acabamento."></textarea></div></section>
-<section class="card"><h2>2. Materiais utilizados</h2><div class="note">Informe quantidade e valor unitário. Estes custos são internos e não aparecem no PDF do cliente.</div><div class="table"><table><thead><tr><th>Material</th><th>Unidade</th><th>Qtd.</th><th>Valor unit.</th><th>Custo</th></tr></thead><tbody id="matBody"></tbody></table></div><h3>Outro material</h3><div class="grid3"><div class="field"><label>Nome</label><input id="outroNome" placeholder="Outro material"></div><div class="field"><label>Quantidade</label><input id="outroQtd" type="number" min="0" step=".01" value="0"></div><div class="field"><label>Valor unitário</label><input id="outroValor" type="number" min="0" step=".01" value="0"></div></div><div class="field"><label>Perda ou desperdício (%)</label><input id="perda" type="number" min="0" step=".1" value="0"></div></section>
-<section class="card"><h2>3. Energia elétrica</h2><div class="grid"><div class="field"><label>Valor do kWh</label><input id="kwh" type="number" min="0" step=".0001" placeholder="Exemplo: 1,10"><span class="help">Use o valor aproximado da sua conta de energia.</span></div><div class="field"><label>Outro custo de energia</label><input id="energiaExtra" type="number" min="0" step=".01" value="0"></div></div><div class="table"><table><thead><tr><th>Equipamento</th><th>Watts</th><th>Horas</th><th>Minutos</th><th>Custo</th></tr></thead><tbody id="eqBody"></tbody></table></div></section>
-<section class="card"><h2>4. Mão de obra e preço</h2><div class="grid3"><div class="field"><label>Valor da hora</label><input id="horaValor" type="number" min="0" step=".01" placeholder="Exemplo: 30,00"></div><div class="field"><label>Horas trabalhadas</label><input id="horas" type="number" min="0" value="0"></div><div class="field"><label>Minutos extras</label><input id="minutos" type="number" min="0" max="59" value="0"></div></div><div class="grid"><div class="field"><label>Outros custos</label><input id="outros" type="number" min="0" step=".01" value="0"></div><div class="field"><label>Percentual para formar o preço (%)</label><input id="margem" type="number" min="0" value="50"><span class="help">Uso interno. Não aparece no PDF.</span></div><div class="field"><label>Taxas sobre a venda (%)</label><input id="taxas" type="number" min="0" max="99" step=".01" value="0"></div><div class="field"><label>Arredondamento</label><select id="arred"><option value="0">Não arredondar</option><option value="1">Próximo R$ 1</option><option value="5">Próximo R$ 5</option><option value="10">Próximo R$ 10</option><option value="9.9">Final em ,90</option></select></div></div></section>
-<div class="actions"><button class="primary" onclick="calc(true)">CALCULAR PREÇO</button><button class="secondary" onclick="limpar()">LIMPAR</button></div><div id="errCalc" class="err"></div>
-<section id="resultado" class="card results"><h2>Resultado interno</h2><div class="row"><span>Materiais por peça</span><strong id="rMat">R$ 0,00</strong></div><div class="row"><span>Energia por peça</span><strong id="rEnergia">R$ 0,00</strong></div><div class="row"><span>Mão de obra por peça</span><strong id="rMao">R$ 0,00</strong></div><div class="row"><span>Outros custos por peça</span><strong id="rOutros">R$ 0,00</strong></div><div class="row"><span>Custo total por peça</span><strong id="rCusto">R$ 0,00</strong></div><div class="price"><small>PREÇO SUGERIDO POR PEÇA</small><b id="rPreco">R$ 0,00</b></div><div class="row"><span>Valor total do pedido</span><strong id="rTotal">R$ 0,00</strong></div></section>
-<section class="card"><h2>5. Dados para o PDF</h2><div class="note"><strong>Importante:</strong> o PDF é um espelho de conferência. A NFS-e oficial precisa ser autorizada pelo ambiente fiscal competente.</div><h3>Prestador</h3><div class="grid"><div class="field"><label>Nome ou Razão Social</label><input id="pNome"></div><div class="field"><label>CPF ou CNPJ</label><input id="pDoc"></div><div class="field"><label>Inscrição Municipal</label><input id="pIM"></div><div class="field"><label>Regime tributário</label><select id="pReg"><option value="">Selecione</option><option>MEI</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option><option>Autônomo / Pessoa Física</option></select></div><div class="field"><label>Município</label><input id="pMun"></div><div class="field"><label>UF</label><input id="pUF" maxlength="2"></div></div><div class="field"><label>Endereço</label><input id="pEnd"></div><h3>Cliente</h3><div class="grid"><div class="field"><label>Nome ou Razão Social</label><input id="cNome"></div><div class="field"><label>CPF ou CNPJ</label><input id="cDoc"></div><div class="field"><label>Município</label><input id="cMun"></div><div class="field"><label>UF</label><input id="cUF" maxlength="2"></div></div><div class="field"><label>Endereço</label><input id="cEnd"></div><h3>Serviço e tributos</h3><div class="grid3"><div class="field"><label>Competência</label><input id="competencia" type="date"></div><div class="field"><label>Município da prestação</label><input id="sMun"></div><div class="field"><label>UF</label><input id="sUF" maxlength="2"></div><div class="field"><label>Código de Tributação Nacional</label><input id="codTrib"></div><div class="field"><label>NBS</label><input id="nbs"></div><div class="field"><label>Número de controle</label><input id="controle" placeholder="0001"></div></div><div class="field"><label>Descrição fiscal</label><textarea id="descFiscal" placeholder="Descrição que aparecerá no PDF."></textarea></div><div class="grid3"><div class="field"><label>ISSQN</label><input id="iss" type="number" min="0" step=".01" value="0"></div><div class="field"><label>IBS</label><input id="ibs" type="number" min="0" step=".01" value="0"></div><div class="field"><label>CBS</label><input id="cbs" type="number" min="0" step=".01" value="0"></div><div class="field"><label>PIS</label><input id="pis" type="number" min="0" step=".01" value="0"></div><div class="field"><label>COFINS</label><input id="cofins" type="number" min="0" step=".01" value="0"></div><div class="field"><label>INSS</label><input id="inss" type="number" min="0" step=".01" value="0"></div></div><div class="grid3"><div class="field"><label>Número da NFS-e, se já emitida</label><input id="nfseNum"></div><div class="field"><label>Código de verificação</label><input id="verif"></div><div class="field"><label>Chave de acesso</label><input id="chave"></div></div><div class="actions"><button class="primary" onclick="gerarPDF()">GERAR PDF</button><button class="outline" onclick="doc(true)">VER PRÉVIA</button></div><div id="errPdf" class="err"></div></section>
-<section class="card"><h2>Prévia do documento</h2><div class="doc" id="doc"><div class="warn">ESPELHO DE CONFERÊNCIA, SEM VALIDADE FISCAL</div><div style="display:flex;justify-content:space-between;gap:20px"><div><b style="font-size:18px">NFS-e, Nota Fiscal de Serviço Eletrônica</b><div>Documento local de conferência</div></div><div><span class="lbl">Número</span><div class="val" id="dNum">Não informado</div><span class="lbl">Competência</span><div class="val" id="dComp">Não informada</div></div></div><h3>Prestador do serviço</h3><div class="docgrid"><div><span class="lbl">Nome</span><div class="val" id="dpNome"></div></div><div><span class="lbl">CPF/CNPJ</span><div class="val" id="dpDoc"></div></div><div><span class="lbl">Inscrição Municipal</span><div class="val" id="dpIM"></div></div><div><span class="lbl">Regime</span><div class="val" id="dpReg"></div></div><div><span class="lbl">Município/UF</span><div class="val" id="dpMun"></div></div><div><span class="lbl">Endereço</span><div class="val" id="dpEnd"></div></div></div><h3>Tomador do serviço</h3><div class="docgrid"><div><span class="lbl">Nome</span><div class="val" id="dcNome"></div></div><div><span class="lbl">CPF/CNPJ</span><div class="val" id="dcDoc"></div></div><div><span class="lbl">Município/UF</span><div class="val" id="dcMun"></div></div><div><span class="lbl">Endereço</span><div class="val" id="dcEnd"></div></div></div><h3>Serviço prestado</h3><div class="docgrid"><div><span class="lbl">Município da prestação</span><div class="val" id="dsMun"></div></div><div><span class="lbl">Código de Tributação</span><div class="val" id="dCod"></div></div><div><span class="lbl">NBS</span><div class="val" id="dNbs"></div></div><div><span class="lbl">Quantidade</span><div class="val" id="dQtd"></div></div></div><p><span class="lbl">Descrição</span><span class="val" id="dDesc"></span></p><h3>Valores</h3><div class="docgrid"><div><span class="lbl">Produto/serviço</span><div class="val" id="dProd"></div></div><div><span class="lbl">Valor unitário</span><div class="val" id="dUnit"></div></div><div><span class="lbl">Valor total</span><div class="val" id="dTot"></div></div><div><span class="lbl">Tributos informados</span><div class="val" id="dTrib"></div></div></div><h3>Conferência</h3><div class="docgrid"><div><span class="lbl">Controle</span><div class="val" id="dCtrl"></div></div><div><span class="lbl">Código de verificação</span><div class="val" id="dVerif"></div></div><div><span class="lbl">Chave de acesso</span><div class="val" id="dChave"></div></div></div><div class="doctotal">TOTAL: <span id="dFinal">R$ 0,00</span></div><div class="docfoot">Este PDF é um espelho de conferência e não substitui uma NFS-e oficialmente autorizada.</div></div></section>
+<body>
+<main class="container">
+
+  <header>
+    <h1>Calculadora de Preço e NFS-e</h1>
+    <p class="subtitle">
+      Calcule o preço do produto ou serviço e gere um PDF de conferência com dados fiscais, sem mostrar lucro, margem ou custos internos ao cliente.
+    </p>
+  </header>
+
+  <div class="steps">
+    <div class="step">1. Calcule os custos</div>
+    <div class="step">2. Preencha os dados fiscais</div>
+    <div class="step">3. Gere o PDF</div>
+  </div>
+
+  <section class="card">
+    <h2>1. Produto ou serviço</h2>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="produto">Nome do produto ou serviço</label>
+        <input id="produto" type="text" placeholder="Exemplo: Suporte de madeira para planta" />
+      </div>
+
+      <div class="field">
+        <label for="quantidade">Quantidade produzida</label>
+        <input id="quantidade" type="number" min="1" step="1" value="1" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="descricaoInterna">Descrição do trabalho</label>
+      <textarea id="descricaoInterna" placeholder="Exemplo: corte da madeira, lixamento, montagem, aplicação de verniz e acabamento."></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Materiais</h2>
+
+    <div class="notice">
+      Preencha somente os materiais utilizados. Os custos desta área são internos e não aparecerão no PDF destinado ao cliente.
+    </div>
+
+    <div class="table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>Unidade</th>
+            <th>Quantidade usada</th>
+            <th>Valor unitário</th>
+            <th>Custo</th>
+          </tr>
+        </thead>
+        <tbody id="materiaisBody"></tbody>
+      </table>
+    </div>
+
+    <h3>Outro material</h3>
+    <div class="grid3">
+      <div class="field">
+        <label for="extraNome">Nome</label>
+        <input id="extraNome" type="text" placeholder="Outro material" />
+      </div>
+      <div class="field">
+        <label for="extraQtd">Quantidade</label>
+        <input id="extraQtd" type="number" min="0" step="0.01" value="0" />
+      </div>
+      <div class="field">
+        <label for="extraValor">Valor unitário</label>
+        <input id="extraValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="desperdicio">Perda ou desperdício (%)</label>
+      <input id="desperdicio" type="number" min="0" max="100" step="0.1" value="0" />
+      <span class="help">Exemplo: sobras de madeira e material que não podem ser reaproveitados.</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Energia elétrica</h2>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="tarifaKwh">Valor do kWh na conta de luz</label>
+        <input id="tarifaKwh" type="number" min="0" step="0.0001" placeholder="Exemplo: 1,10" />
+        <span class="help">Use o valor aproximado cobrado por kWh na conta de energia.</span>
+      </div>
+
+      <div class="field">
+        <label for="energiaExtra">Outro custo de energia</label>
+        <input id="energiaExtra" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Potência em Watts</th>
+            <th>Horas</th>
+            <th>Minutos</th>
+            <th>Custo</th>
+          </tr>
+        </thead>
+        <tbody id="energiaBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Mão de obra e preço</h2>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="valorHora">Valor da hora de trabalho</label>
+        <input id="valorHora" type="number" min="0" step="0.01" placeholder="Exemplo: 30,00" />
+      </div>
+
+      <div class="field">
+        <label for="horas">Horas trabalhadas</label>
+        <input id="horas" type="number" min="0" step="1" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="minutos">Minutos extras</label>
+        <input id="minutos" type="number" min="0" max="59" step="1" value="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="outrosCustos">Outros custos</label>
+        <input id="outrosCustos" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="lucroPct">Percentual para formar o preço (%)</label>
+        <input id="lucroPct" type="number" min="0" max="500" step="1" value="50" />
+        <span class="help">Este campo é apenas interno. Não aparece no PDF.</span>
+      </div>
+
+      <div class="field">
+        <label for="taxasPct">Taxas sobre a venda (%)</label>
+        <input id="taxasPct" type="number" min="0" max="99" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="arredondar">Arredondamento</label>
+        <select id="arredondar">
+          <option value="none">Não arredondar</option>
+          <option value="1">Próximo R$ 1</option>
+          <option value="5">Próximo R$ 5</option>
+          <option value="10">Próximo R$ 10</option>
+          <option value="9.90">Final em ,90</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" type="button" onclick="calcular(true)">CALCULAR PREÇO</button>
+    <button class="secondary" type="button" onclick="limparCalculo()">LIMPAR</button>
+  </div>
+
+  <div id="erroCalculo" class="danger"></div>
+
+  <section class="card results" id="resultado">
+    <h2>Resultado interno</h2>
+    <div class="result-row"><span>Materiais por peça</span><strong id="rMateriais">R$ 0,00</strong></div>
+    <div class="result-row"><span>Energia por peça</span><strong id="rEnergia">R$ 0,00</strong></div>
+    <div class="result-row"><span>Mão de obra por peça</span><strong id="rMaoObra">R$ 0,00</strong></div>
+    <div class="result-row"><span>Outros custos por peça</span><strong id="rOutros">R$ 0,00</strong></div>
+    <div class="result-row"><span>Custo total por peça</span><strong id="rCusto">R$ 0,00</strong></div>
+
+    <div class="final-price">
+      <span class="label">PREÇO SUGERIDO POR PEÇA</span>
+      <span class="value" id="rPreco">R$ 0,00</span>
+    </div>
+
+    <div class="result-row"><span>Valor total do pedido</span><strong id="rPedido">R$ 0,00</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>5. Dados fiscais para o PDF</h2>
+
+    <div class="info">
+      O PDF abaixo segue uma estrutura de conferência baseada na NFS-e nacional. Para ter validade fiscal, a emissão oficial deve ser autorizada pelo Emissor Nacional ou por integração API credenciada. O PDF local não substitui a NFS-e oficial.
+    </div>
+
+    <h3>Prestador</h3>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="prestadorNome">Nome / Razão Social</label>
+        <input id="prestadorNome" type="text" placeholder="Nome do prestador ou empresa" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorDoc">CPF ou CNPJ</label>
+        <input id="prestadorDoc" type="text" inputmode="numeric" placeholder="CPF ou CNPJ" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorIM">Inscrição Municipal</label>
+        <input id="prestadorIM" type="text" placeholder="Se houver" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorRegime">Regime tributário</label>
+        <select id="prestadorRegime">
+          <option value="">Selecione</option>
+          <option>MEI</option>
+          <option>Simples Nacional</option>
+          <option>Lucro Presumido</option>
+          <option>Lucro Real</option>
+          <option>Autônomo / Pessoa Física</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="prestadorMunicipio">Município</label>
+        <input id="prestadorMunicipio" type="text" placeholder="Exemplo: São Paulo" />
+      </div>
+
+      <div class="field">
+        <label for="prestadorUF">UF</label>
+        <input id="prestadorUF" type="text" maxlength="2" placeholder="SP" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="prestadorEndereco">Endereço</label>
+      <input id="prestadorEndereco" type="text" placeholder="Rua, número, bairro e CEP" />
+    </div>
+
+    <h3>Tomador / cliente</h3>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="clienteNome">Nome / Razão Social</label>
+        <input id="clienteNome" type="text" placeholder="Nome do cliente" />
+      </div>
+
+      <div class="field">
+        <label for="clienteDoc">CPF ou CNPJ</label>
+        <input id="clienteDoc" type="text" inputmode="numeric" placeholder="CPF ou CNPJ" />
+      </div>
+
+      <div class="field">
+        <label for="clienteMunicipio">Município</label>
+        <input id="clienteMunicipio" type="text" placeholder="Município" />
+      </div>
+
+      <div class="field">
+        <label for="clienteUF">UF</label>
+        <input id="clienteUF" type="text" maxlength="2" placeholder="SP" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="clienteEndereco">Endereço</label>
+      <input id="clienteEndereco" type="text" placeholder="Rua, número, bairro e CEP" />
+    </div>
+
+    <h3>Dados do serviço</h3>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="competencia">Data de competência</label>
+        <input id="competencia" type="date" />
+      </div>
+
+      <div class="field">
+        <label for="municipioPrestacao">Município da prestação</label>
+        <input id="municipioPrestacao" type="text" placeholder="Município" />
+      </div>
+
+      <div class="field">
+        <label for="ufPrestacao">UF</label>
+        <input id="ufPrestacao" type="text" maxlength="2" placeholder="SP" />
+      </div>
+
+      <div class="field">
+        <label for="codigoTributacao">Código de Tributação Nacional</label>
+        <input id="codigoTributacao" type="text" placeholder="Conforme serviço" />
+      </div>
+
+      <div class="field">
+        <label for="nbs">NBS</label>
+        <input id="nbs" type="text" placeholder="Se aplicável" />
+      </div>
+
+      <div class="field">
+        <label for="numeroControle">Número de controle</label>
+        <input id="numeroControle" type="text" placeholder="Exemplo: 0001" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="descricaoFiscal">Descrição que aparecerá no PDF</label>
+      <textarea id="descricaoFiscal" placeholder="Exemplo: Fabricação e montagem de suporte artesanal de madeira para planta, conforme especificação do cliente."></textarea>
+      <span class="help">Não informe custo, lucro ou margem neste campo.</span>
+    </div>
+
+    <h3>Tributos e retenções</h3>
+
+    <div class="notice">
+      Os campos tributários são opcionais nesta calculadora. Preencha somente com valores conferidos no sistema fiscal ou com orientação contábil. A calculadora não determina automaticamente o enquadramento tributário.
+    </div>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="issValor">ISSQN, valor</label>
+        <input id="issValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="ibsValor">IBS, valor</label>
+        <input id="ibsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="cbsValor">CBS, valor</label>
+        <input id="cbsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="pisValor">PIS, valor</label>
+        <input id="pisValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="cofinsValor">COFINS, valor</label>
+        <input id="cofinsValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="inssValor">INSS retido, valor</label>
+        <input id="inssValor" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <h3>Dados da NFS-e oficial, se já emitida</h3>
+
+    <div class="grid3">
+      <div class="field">
+        <label for="nfseNumero">Número da NFS-e</label>
+        <input id="nfseNumero" type="text" placeholder="Opcional" />
+      </div>
+
+      <div class="field">
+        <label for="codigoVerificacao">Código de verificação</label>
+        <input id="codigoVerificacao" type="text" placeholder="Opcional" />
+      </div>
+
+      <div class="field">
+        <label for="chaveAcesso">Chave de acesso</label>
+        <input id="chaveAcesso" type="text" placeholder="Opcional" />
+      </div>
+    </div>
+
+    <div class="pdf-actions">
+      <button class="primary" type="button" onclick="gerarPDF()">GERAR PDF</button>
+      <button class="outline" type="button" onclick="atualizarDocumento(true)">VER PRÉVIA</button>
+    </div>
+
+    <div id="erroPDF" class="danger"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prévia do documento</h2>
+
+    <div id="nfseDocument">
+      <div class="nfse-warning">
+        ESPELHO DE CONFERÊNCIA, SEM VALIDADE FISCAL
+      </div>
+
+      <div class="nfse-header">
+        <div>
+          <div class="nfse-title">NFS-e, Nota Fiscal de Serviço Eletrônica</div>
+          <div class="nfse-subtitle">Documento de conferência baseado na estrutura nacional de NFS-e</div>
+        </div>
+
+        <div class="right">
+          <span class="nfse-label">Número da NFS-e</span>
+          <div class="nfse-value" id="dNfseNumero">Não informado</div>
+          <br />
+          <span class="nfse-label">Competência</span>
+          <div class="nfse-value" id="dCompetencia">Não informada</div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Prestador do serviço</div>
+        <div class="nfse-box-body nfse-grid2">
+          <div><span class="nfse-label">Nome / Razão Social</span><span class="nfse-value" id="dPrestadorNome">Não informado</span></div>
+          <div><span class="nfse-label">CPF / CNPJ</span><span class="nfse-value" id="dPrestadorDoc">Não informado</span></div>
+          <div><span class="nfse-label">Inscrição Municipal</span><span class="nfse-value" id="dPrestadorIM">Não informada</span></div>
+          <div><span class="nfse-label">Regime Tributário</span><span class="nfse-value" id="dPrestadorRegime">Não informado</span></div>
+          <div><span class="nfse-label">Município / UF</span><span class="nfse-value" id="dPrestadorCidade">Não informado</span></div>
+          <div><span class="nfse-label">Endereço</span><span class="nfse-value" id="dPrestadorEndereco">Não informado</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Tomador do serviço</div>
+        <div class="nfse-box-body nfse-grid2">
+          <div><span class="nfse-label">Nome / Razão Social</span><span class="nfse-value" id="dClienteNome">Não informado</span></div>
+          <div><span class="nfse-label">CPF / CNPJ</span><span class="nfse-value" id="dClienteDoc">Não informado</span></div>
+          <div><span class="nfse-label">Município / UF</span><span class="nfse-value" id="dClienteCidade">Não informado</span></div>
+          <div><span class="nfse-label">Endereço</span><span class="nfse-value" id="dClienteEndereco">Não informado</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Serviço prestado</div>
+        <div class="nfse-box-body">
+          <div class="nfse-grid3">
+            <div><span class="nfse-label">Município da prestação</span><span class="nfse-value" id="dMunicipioPrestacao">Não informado</span></div>
+            <div><span class="nfse-label">Código de Tributação Nacional</span><span class="nfse-value" id="dCodigoTributacao">Não informado</span></div>
+            <div><span class="nfse-label">NBS</span><span class="nfse-value" id="dNbs">Não informado</span></div>
+          </div>
+          <br />
+          <span class="nfse-label">Descrição do serviço</span>
+          <div class="nfse-value nfse-service" id="dDescricaoFiscal">Não informada</div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Valores</div>
+        <div class="nfse-box-body">
+          <table class="nfse-values">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Quantidade</th>
+                <th>Valor unitário</th>
+                <th>Valor total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="dProduto">Serviço</td>
+                <td id="dQuantidade">1</td>
+                <td id="dValorUnitario">R$ 0,00</td>
+                <td id="dValorTotal">R$ 0,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Tributos informados</div>
+        <div class="nfse-box-body">
+          <table class="nfse-values">
+            <thead>
+              <tr>
+                <th>ISSQN</th>
+                <th>IBS</th>
+                <th>CBS</th>
+                <th>PIS</th>
+                <th>COFINS</th>
+                <th>INSS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="dIss">R$ 0,00</td>
+                <td id="dIbs">R$ 0,00</td>
+                <td id="dCbs">R$ 0,00</td>
+                <td id="dPis">R$ 0,00</td>
+                <td id="dCofins">R$ 0,00</td>
+                <td id="dInss">R$ 0,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-title">Identificação e conferência</div>
+        <div class="nfse-box-body nfse-grid3">
+          <div><span class="nfse-label">Número de controle</span><span class="nfse-value" id="dNumeroControle">Não informado</span></div>
+          <div><span class="nfse-label">Código de verificação</span><span class="nfse-value" id="dCodigoVerificacao">Não informado</span></div>
+          <div><span class="nfse-label">Chave de acesso</span><span class="nfse-value" id="dChaveAcesso">Não informada</span></div>
+        </div>
+      </div>
+
+      <div class="nfse-box">
+        <div class="nfse-box-body">
+          <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;">
+            <strong>VALOR TOTAL DO SERVIÇO</strong>
+            <strong class="nfse-total" id="dTotalFinal">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="nfse-footer">
+        Este arquivo é uma prévia local para conferência e controle. A validade fiscal depende da autorização e emissão no ambiente fiscal competente.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Calculadora simples de precificação e geração de PDF de conferência.
+  </footer>
 </main>
-<script src="app.js"></script></body></html>
+  <script src="app.js"></script>
+</body>
+</html>
