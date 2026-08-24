@@ -1,0 +1,14 @@
+{
+  "name": "calculadora-precificacao-nfse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calculadora de precificação com geração de PDF e espelho de conferência NFS-e.",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  }
+}
