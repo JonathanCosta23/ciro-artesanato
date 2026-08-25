@@ -1,5 +1,5 @@
 (async () => {
-  const arquivos = ['app-core.js', 'app-pdf.js', 'app-main.js'];
+  const arquivos = ['app-core.js', 'app-pdf.js', 'app-main.js', 'ganho.js'];
 
   for (const src of arquivos) {
     await new Promise((resolve, reject) => {
