@@ -44,6 +44,7 @@ jobs:
           node --check app-core.js
           node --check app-pdf.js
           node --check app-main.js
+          node --check ganho.js
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
@@ -51,7 +52,7 @@ jobs:
       - name: Preparar site
         run: |
           mkdir -p _site
-          cp index.html style.css app.js app-core.js app-pdf.js app-main.js _site/
+          cp index.html style.css app.js app-core.js app-pdf.js app-main.js ganho.js _site/
 
       - name: Enviar artefato
         uses: actions/upload-pages-artifact@v3
